@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STEM Spark Ultimate</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root{
+--navy:#2F4156;--sky:#C8D9E6;--beige:#F5EFEB;--white:#fff;
+--dark-bg:#0f1720;--dark-card:#1b2430;--dark-text:#e8eef6;--accent:#C8D9E6
+}
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto}
+body{background:var(--beige);color:var(--navy);transition:.3s}
+body.dark{background:var(--dark-bg);color:var(--dark-text)}
+header{display:flex;justify-content:space-between;padding:18px 36px;position:sticky;top:0;background:rgba(255,255,255,.6);backdrop-filter:blur(10px);z-index:10}
+body.dark header{background:rgba(15,23,32,.6)}
+nav a{margin:0 10px;cursor:pointer;color:inherit;text-decoration:none}
+.btn{padding:10px 18px;border:none;border-radius:20px;background:var(--navy);color:#fff;cursor:pointer}
+.page{display:none;padding:60px 20px}
+.active{display:block}
+.hero{text-align:center;min-height:80vh;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;margin-top:20px}
+.card{background:var(--white);padding:20px;border-radius:20px;transition:.3s;cursor:pointer}
+body.dark .card{background:var(--dark-card)}
+.card:hover{transform:translateY(-8px) scale(1.02)}
+.search{padding:10px;border-radius:20px;width:260px;margin-top:15px}
+.fade{opacity:0;transform:translateY(40px);transition:1s}
+.show{opacity:1;transform:translateY(0)}
+footer{text-align:center;padding:20px}
+canvas{max-width:600px;margin:auto;display:block}
+.chatbot{position:fixed;bottom:20px;right:20px;width:300px;background:white;border-radius:15px;padding:10px;box-shadow:0 5px 15px rgba(0,0,0,.2)}
+body.dark .chatbot{background:#1b2430;color:#e8eef6}
+.chatbox{height:150px;overflow:auto;font-size:12px;margin-bottom:5px;border:1px solid #ccc;padding:5px;border-radius:10px;background:#f5f5f5}
+body.dark .chatbox{background:#2a2a2a}
+input.chat{width:100%;padding:5px;border-radius:10px;border:1px solid #ccc}
+.story{height:100vh;display:flex;align-items:center;justify-content:center;font-size:30px}
+</style>
+</head>
+<body>
+<header>
+<h2>STEM Spark Ultimate</h2>
+<nav>
+<a onclick="show('home')">Home</a>
+<a onclick="show('lessons')">Lessons</a>
+<a onclick="show('quiz')">Quiz</a>
+<a onclick="show('graphs')">Graphs</a>
+<a onclick="show('dashboard')">Dashboard</a>
+</nav>
+<button onclick="toggleMode()">🌙</button>
+</header>
+
+<section id="home" class="page active hero fade">
+<h1>Explore. Innovate. Create.</h1>
+<p>Ultimate STEM learning platform with AI assistance</p>
+</section>
+<section class="story fade">🚀 Interactive STEM Modules</section>
+<section class="story fade">📊 Real-time Data Graphs</section>
+<section class="story fade">🤖 AI STEM Chatbot</section>
+
+<section id="lessons" class="page fade">
+<h2>Lessons</h2>
+<div class="grid">
+<div class="card" onclick="openLesson('physics')">Physics Module</div>
+<div class="card" onclick="openLesson('math')">Math Module</div>
+<div class="card" onclick="openLesson('coding')">Coding Module</div>
+<div class="card" onclick="openLesson('research')">Research Module</div>
+</div>
+<div id="lessonContent"></div>
+</section>
+
+<section id="quiz" class="page hero fade">
+<h2 id="qText"></h2>
+<div id="answers"></div>
+<p id="result"></p>
+<div class="progress"><div class="bar" id="bar"></div></div>
+</section>
+
+<section id="graphs" class="page hero fade">
+<h2>Research Graph</h2>
+<canvas id="chart"></canvas>
+</section>
+
+<section id="dashboard" class="page hero fade">
+<h2>Student Dashboard</h2>
+<p id="user">User: Guest</p>
+<p>Total Score: <span id="totalScore">0</span></p>
+<button class="btn" onclick="login()">Simulate Login</button>
+</section>
+
+<div class="chatbot">
+<div class="chatbox" id="chatbox"></div>
+<input class="chat" placeholder="Ask STEM..." onkeydown="chat(event)">
+</div>
+
+<footer>© 2026 STEM Spark Ultimate</footer>
+
+<script>
+// Toggle Dark Mode
+function toggleMode(){document.body.classList.toggle('dark')}
+function show(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active')}
+
+// Scroll animation
+const observer=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('show')})})
+document.querySelectorAll('.fade,.story').forEach(el=>observer.observe(el))
+
+// Lessons
+function openLesson(type){
+const content={
+physics:"<h3>Physics</h3><p>Force = mass × acceleration</p>",
+math:"<h3>Math</h3><p>Algebra basics and equations</p>",
+coding:"<h3>Coding</h3><p>JavaScript fundamentals</p>",
+research:"<h3>Research</h3><p>How to conduct experiments and record data</p>"
+};
+document.getElementById('lessonContent').innerHTML=content[type];
+}
+
+// Quiz
+const quiz=[
+{q:"2+2?",a:["3","4"],c:1},
+{q:"H2O?",a:["Water","Oxygen"],c:0},
+{q:"Speed formula?",a:["d/t","m*v","m+a"],c:0}
+];
+let qi=0,score=0;
+function loadQ(){
+if(qi>=quiz.length){document.getElementById('qText').innerText='Quiz Finished! Score: '+score;localStorage.setItem('score',score);updateDashboard();return;}
+let q=quiz[qi];
+document.getElementById('qText').innerText=q.q;
+let html="";
+q.a.forEach((a,i)=>html+=`<button class='btn' onclick='check(${i})'>${a}</button><br><br>`);
+document.getElementById('answers').innerHTML=html;
+document.getElementById('bar').style.width=(qi/quiz.length*100)+"%";
+}
+function check(i){if(i===quiz[qi].c)score++;qi++;loadQ();}
+loadQ();
+
+// Graph
+const ctx=document.getElementById('chart');
+new Chart(ctx,{type:'line',data:{labels:['Jan','Feb','Mar','Apr'],datasets:[{label:'Research Data',data:[10,20,15,25],borderColor:'var(--navy)',backgroundColor:'var(--sky)'}]},options:{responsive:true}});
+
+// Dashboard/Login
+function login(){localStorage.setItem('user','STEM Student');updateDashboard();}
+function updateDashboard(){document.getElementById('user').innerText='User: '+(localStorage.getItem('user')||'Guest');document.getElementById('totalScore').innerText=localStorage.getItem('score')||0;}
+updateDashboard();
+
+// Simple AI Chatbot
+function chat(e){
+if(e.key==='Enter'){
+let input=e.target.value.toLowerCase();
+let reply="I don't understand that. Ask physics, math, coding, or research.";
+if(input.includes('force')) reply="Force = mass × acceleration.";
+if(input.includes('water')) reply="H2O is water.";
+if(input.includes('javascript')) reply="JavaScript is a programming language for web development.";
+if(input.includes('experiment')) reply="Research involves observing, hypothesizing, and recording data.";
+let box=document.getElementById('chatbox');
+box.innerHTML+=`<div>You: ${input}</div><div>Bot: ${reply}</div>`;
+box.scrollTop=box.scrollHeight;
+e.target.value='';
+}
+}
+</script>
+</body>
+</html>
