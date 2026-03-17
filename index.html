@@ -3,14 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>STEM Spark Ultimate</title>
+<title>STEM Spark Ultimate Interactive</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-:root{
---navy:#2F4156;--sky:#C8D9E6;--beige:#F5EFEB;--white:#fff;
---dark-bg:#0f1720;--dark-card:#1b2430;--dark-text:#e8eef6;--accent:#C8D9E6
-}
+:root{--navy:#2F4156;--sky:#C8D9E6;--beige:#F5EFEB;--white:#fff;--dark-bg:#0f1720;--dark-card:#1b2430;--dark-text:#e8eef6;--accent:#C8D9E6}
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto}
 body{background:var(--beige);color:var(--navy);transition:.3s}
 body.dark{background:var(--dark-bg);color:var(--dark-text)}
@@ -35,7 +32,7 @@ body.dark .chatbot{background:#1b2430;color:#e8eef6}
 .chatbox{height:150px;overflow:auto;font-size:12px;margin-bottom:5px;border:1px solid #ccc;padding:5px;border-radius:10px;background:#f5f5f5}
 body.dark .chatbox{background:#2a2a2a}
 input.chat{width:100%;padding:5px;border-radius:10px;border:1px solid #ccc}
-.story{height:100vh;display:flex;align-items:center;justify-content:center;font-size:30px}
+.story{height:100vh;display:flex;align-items:center;justify-content:center;font-size:30px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -55,9 +52,9 @@ input.chat{width:100%;padding:5px;border-radius:10px;border:1px solid #ccc}
 <h1>Explore. Innovate. Create.</h1>
 <p>Ultimate STEM learning platform with AI assistance</p>
 </section>
-<section class="story fade">🚀 Interactive STEM Modules</section>
-<section class="story fade">📊 Real-time Data Graphs</section>
-<section class="story fade">🤖 AI STEM Chatbot</section>
+<section class="story fade" onclick="show('lessons')">🚀 Interactive STEM Modules</section>
+<section class="story fade" onclick="show('graphs')">📊 Real-time Data Graphs</section>
+<section class="story fade" onclick="show('dashboard')">🤖 AI STEM Chatbot</section>
 
 <section id="lessons" class="page fade">
 <h2>Lessons</h2>
@@ -97,16 +94,15 @@ input.chat{width:100%;padding:5px;border-radius:10px;border:1px solid #ccc}
 <footer>© 2026 STEM Spark Ultimate</footer>
 
 <script>
-// Toggle Dark Mode
 function toggleMode(){document.body.classList.toggle('dark')}
 function show(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active')}
 
-// Scroll animation
 const observer=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('show')})})
 document.querySelectorAll('.fade,.story').forEach(el=>observer.observe(el))
 
 // Lessons
 function openLesson(type){
+show('lessons');
 const content={
 physics:"<h3>Physics</h3><p>Force = mass × acceleration</p>",
 math:"<h3>Math</h3><p>Algebra basics and equations</p>",
@@ -117,11 +113,7 @@ document.getElementById('lessonContent').innerHTML=content[type];
 }
 
 // Quiz
-const quiz=[
-{q:"2+2?",a:["3","4"],c:1},
-{q:"H2O?",a:["Water","Oxygen"],c:0},
-{q:"Speed formula?",a:["d/t","m*v","m+a"],c:0}
-];
+const quiz=[{q:"2+2?",a:["3","4"],c:1},{q:"H2O?",a:["Water","Oxygen"],c:0},{q:"Speed formula?",a:["d/t","m*v","m+a"],c:0}];
 let qi=0,score=0;
 function loadQ(){
 if(qi>=quiz.length){document.getElementById('qText').innerText='Quiz Finished! Score: '+score;localStorage.setItem('score',score);updateDashboard();return;}
