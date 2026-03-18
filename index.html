@@ -37,11 +37,11 @@ input.chat{width:100%;padding:5px;border-radius:10px;border:1px solid #ccc}
 <header>
 <h2>STEM Spark Ultimate</h2>
 <nav>
-<a onclick="show('home')">Home</a>
-<a onclick="show('lessons')">Lessons</a>
-<a onclick="show('quiz')">Quiz</a>
-<a onclick="show('graphs')">Graphs</a>
-<a onclick="show('dashboard')">Dashboard</a>
+<a>Home</a>
+<a>Lessons</a>
+<a>Quiz</a>
+<a>Graphs</a>
+<a>Dashboard</a>
 </nav>
 <button onclick="toggleMode()">🌙</button>
 </header>
@@ -92,74 +92,78 @@ input.chat{width:100%;padding:5px;border-radius:10px;border:1px solid #ccc}
 <footer>© 2026 STEM Spark Ultimate</footer>
 
 <script>
-function toggleMode(){document.body.classList.toggle('dark')}
-function show(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active')}
+document.addEventListener('DOMContentLoaded', ()=>{
+  // Page navigation
+  const sections = ['home','lessons','quiz','graphs','dashboard'];
+  document.querySelectorAll('nav a').forEach((a,i)=>{
+    a.addEventListener('click',()=>{
+      show(sections[i]);
+      document.getElementById(sections[i]).scrollIntoView({behavior:'smooth'});
+    });
+  });
 
-const observer=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('show')})})
-document.querySelectorAll('.fade,.story').forEach(el=>observer.observe(el))
+  window.show = function(id){
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    const page = document.getElementById(id);
+    if(page) page.classList.add('active');
+  }
 
-function openLesson(type){
-  show('lessons');
-  const content={
-    physics:"<h3>Physics</h3><p>Force = mass × acceleration</p>",
-    math:"<h3>Math</h3><p>Algebra basics and equations</p>",
-    coding:"<h3>Coding</h3><p>JavaScript fundamentals</p>",
-    research:"<h3>Research</h3><p>Experimental methodology</p>"
-  };
-  document.getElementById('lessonContent').innerHTML = content[type];
-}
+  const observer = new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('show')})});
+  document.querySelectorAll('.fade,.story').forEach(el=>observer.observe(el));
 
-const quiz=[{q:"2+2?",a:["3","4"],c:1},{q:"H2O?",a:["Water","Oxygen"],c:0},{q:"Speed formula?",a:["d/t","m*v","m+a"],c:0}];
-let qi=0,score=0;
-function loadQ(){
-  if(qi>=quiz.length){document.getElementById('qText').innerText='Quiz Finished! Score: '+score;localStorage.setItem('score',score);updateDashboard();return;}
-  let q=quiz[qi];
-  document.getElementById('qText').innerText=q.q;
-  let html="";
-  q.a.forEach((a,i)=>html+=`<button class='btn' onclick='check(${i})'>${a}</button><br><br>`);
-  document.getElementById('answers').innerHTML=html;
-  document.getElementById('bar').style.width=(qi/quiz.length*100)+"%";
-}
-function check(i){if(i===quiz[qi].c)score++;qi++;loadQ();}
-loadQ();
+  // Lessons
+  window.openLesson = function(type){
+    show('lessons');
+    const content = {
+      physics:"<h3>Physics</h3><p>Force = mass × acceleration</p>",
+      math:"<h3>Math</h3><p>Algebra basics and equations</p>",
+      coding:"<h3>Coding</h3><p>JavaScript fundamentals</p>",
+      research:"<h3>Research</h3><p>Experimental methodology</p>"
+    };
+    document.getElementById('lessonContent').innerHTML = content[type];
+  }
 
-const ctx=document.getElementById('chart');
-new Chart(ctx,{type:'line',data:{labels:['Jan','Feb','Mar','Apr'],datasets:[{label:'Research Data',data:[10,20,15,25],borderColor:'var(--navy)',backgroundColor:'var(--sky)'}]},options:{responsive:true}});
+  // Quiz
+  const quiz=[{q:"2+2?",a:["3","4"],c:1},{q:"H2O?",a:["Water","Oxygen"],c:0},{q:"Speed formula?",a:["d/t","m*v","m+a"],c:0}];
+  let qi=0,score=0;
+  function loadQ(){
+    if(qi>=quiz.length){document.getElementById('qText').innerText='Quiz Finished! Score: '+score;localStorage.setItem('score',score);updateDashboard();return;}
+    let q=quiz[qi];
+    document.getElementById('qText').innerText=q.q;
+    let html="";
+    q.a.forEach((a,i)=>html+=`<button class='btn' onclick='check(${i})'>${a}</button><br><br>`);
+    document.getElementById('answers').innerHTML=html;
+    document.getElementById('bar').style.width=(qi/quiz.length*100)+"%";
+  }
+  window.check = function(i){if(i===quiz[qi].c)score++;qi++;loadQ();}
+  loadQ();
 
-function login(){localStorage.setItem('user','STEM Student');updateDashboard();}
-function updateDashboard(){document.getElementById('user').innerText='User: '+(localStorage.getItem('user')||'Guest');document.getElementById('totalScore').innerText=localStorage.getItem('score')||0;}
-updateDashboard();
+  // Graph
+  const ctx=document.getElementById('chart');
+  new Chart(ctx,{type:'line',data:{labels:['Jan','Feb','Mar','Apr'],datasets:[{label:'Research Data',data:[10,20,15,25],borderColor:'var(--navy)',backgroundColor:'var(--sky)'}]},options:{responsive:true}});
 
-function chat(e){
-if(e.key==='Enter'){
-let input=e.target.value.toLowerCase();
-let reply="I don't understand that. Ask physics, math, coding, or research.";
-if(input.includes('force')) reply="Force = mass × acceleration.";
-if(input.includes('water')) reply="H2O is water.";
-if(input.includes('javascript')) reply="JavaScript is a programming language for web development.";
-if(input.includes('experiment')) reply="Research involves observing, hypothesizing, and recording data.";
-let box=document.getElementById('chatbox');
-box.innerHTML+=`<div>You: ${input}</div><div>Bot: ${reply}</div>`;
-box.scrollTop=box.scrollHeight;
-e.target.value='';
-}}
+  // Dashboard/Login
+  window.login = function(){localStorage.setItem('user','STEM Student');updateDashboard();}
+  function updateDashboard(){document.getElementById('user').innerText='User: '+(localStorage.getItem('user')||'Guest');document.getElementById('totalScore').innerText=localStorage.getItem('score')||0;}
+  updateDashboard();
+
+  // Simple AI Chatbot
+  window.chat = function(e){
+    if(e.key==='Enter'){
+      let input=e.target.value.toLowerCase();
+      let reply="I don't understand that. Ask physics, math, coding, or research.";
+      if(input.includes('force')) reply="Force = mass × acceleration.";
+      if(input.includes('water')) reply="H2O is water.";
+      if(input.includes('javascript')) reply="JavaScript is a programming language for web development.";
+      if(input.includes('experiment')) reply="Research involves observing, hypothesizing, and recording data.";
+      let box=document.getElementById('chatbox');
+      box.innerHTML+=`<div>You: ${input}</div><div>Bot: ${reply}</div>`;
+      box.scrollTop=box.scrollHeight;
+      e.target.value='';
+    }
+  }
+});
+function toggleMode(){document.body.classList.toggle('dark');}
 </script>
 </body>
 </html>
-```
-
----
-
-This **full deployable version**:  
-
-- ✅ All **navigation links** work  
-- ✅ Lesson cards open content AND switch to Lessons page  
-- ✅ Storytelling sections are **clickable**  
-- ✅ Quiz, graphs, dashboard, and AI chatbot fully functional  
-- ✅ Ready to put in **`index.html`** and deploy on GitHub Pages or Netlify  
-
----
-
-If you want, I can also **give you a step-by-step “click to deploy” guide** specifically for **this fixed Ultimate Version**, so it goes live in minutes.  
-
-Do you want me to do that?
